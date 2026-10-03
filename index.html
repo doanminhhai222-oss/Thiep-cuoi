@@ -14,9 +14,10 @@
 :root{--bg:#fffaf7;--bg2:#f7f2ea;--olive:#3f4a1f;--mute:#7a7d64;--line:#dcd9cd}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--olive);font-family:'EB Garamond',Georgia,serif;font-size:20px;line-height:1.6}
-.page{max-width:720px;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
-section{position:relative;padding:72px 26px;text-align:center}
+body{background:#e9e2d4 radial-gradient(circle at 20% 10%,#f1ebe0,#e3dccd);color:var(--olive);font-family:'EB Garamond',Georgia,serif;font-size:20px;line-height:1.6}
+.page{max-width:720px;margin:26px auto;position:relative;overflow:hidden;background:var(--bg);border:1px solid #d9d2c3;border-radius:6px;box-shadow:0 10px 40px rgba(63,74,31,.18),0 2px 6px rgba(0,0,0,.08)}
+.page::before{content:"";position:absolute;inset:12px;border:4px double rgba(63,74,31,.75);border-radius:2px;pointer-events:none;z-index:6}
+section{position:relative;padding:72px 34px;text-align:center}
 h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;letter-spacing:.06em;text-transform:uppercase;line-height:1.25}
 h3{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:20px;letter-spacing:.12em;text-transform:uppercase}
 .small{font-size:14px;letter-spacing:.3em;text-transform:uppercase;color:var(--mute)}
@@ -116,6 +117,7 @@ dialog input,dialog select,dialog textarea{width:100%;font:inherit;font-size:17p
 #gate.show{display:flex}#gate.hide{opacity:0;pointer-events:none}
 #gate .sc{font-family:'Great Vibes',cursive;font-size:clamp(42px,12vw,64px);line-height:1.2}
 .rv{opacity:0;transform:translateY(22px);transition:opacity .9s,transform .9s}.rv.in{opacity:1;transform:none}
+@media(max-width:560px){.page{margin:12px 10px}.page::before{inset:8px}section{padding-left:26px;padding-right:26px}.parents b{font-size:20px}.parents em{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
 </style>
 </head>
