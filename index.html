@@ -84,12 +84,27 @@ section>*:not(.fl){position:relative;z-index:1}
 .w1 p{margin-top:6px;white-space:pre-wrap;word-break:break-word}
 .empty{text-align:center;color:var(--mute)}
 /* gift */
-.gift{background:#fffcfa}
-.bank{max-width:380px;margin:28px auto 0;background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+.gift{background:var(--bg)}
+.bank{max-width:380px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 4px 16px rgba(0,0,0,.05);display:none}
 .bank .n{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;letter-spacing:.06em;margin:6px 0 4px}
 .bank img{width:220px;max-width:100%;margin:18px auto 0;display:block;border-radius:10px}
 footer{padding:50px 20px 110px;text-align:center}
 footer .sc{font-family:'Great Vibes',cursive;font-size:44px}
+.gbox{position:relative;max-width:460px;margin:20px auto 0}
+.env{display:block;width:100%;background:none;border:0;padding:0;cursor:pointer;animation:flo 3.2s ease-in-out infinite;transform-origin:50% 80%;-webkit-tap-highlight-color:transparent}
+.env img{width:100%;display:block}
+@keyframes flo{50%{transform:translateY(-8px) rotate(-1deg)}}
+.tap{color:var(--mute);font-size:16px;margin-top:4px;font-family:'Cormorant Garamond',serif;letter-spacing:.12em;animation:pul 1.8s ease-in-out infinite}
+@keyframes pul{50%{opacity:.35}}
+.gbox.open .env{animation:opn .9s ease-in forwards;pointer-events:none}
+@keyframes opn{35%{transform:scale(1.06) rotate(-4deg)}100%{transform:translateY(-70px) scale(.6) rotate(8deg);opacity:0}}
+.gbox.open .env,.gbox.open .tap{position:absolute;inset:0 0 auto 0}
+.gbox.open .tap{display:none}
+.gbox.open .bank{display:block;animation:rise .9s .55s both cubic-bezier(.2,.9,.3,1.2)}
+@keyframes rise{from{opacity:0;transform:translateY(60px) scale(.85)}to{opacity:1;transform:none}}
+.hearts{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.hearts i{position:absolute;left:50%;top:45%;font-style:normal;font-size:22px;opacity:0;animation:hr 1.8s ease-out forwards}
+@keyframes hr{0%{opacity:1;transform:translate(0,0) scale(.5)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.3)}}
 /* music + modal */
 #mus{position:fixed;right:14px;bottom:14px;z-index:20;width:46px;height:46px;border-radius:50%;border:0;background:var(--olive);color:#fff;font-size:19px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 #mus.on{animation:sp 4s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
@@ -194,12 +209,18 @@ dialog input,dialog select,dialog textarea{width:100%;font:inherit;font-size:17p
 <section class="gift">
   <img class="fl" src="assets/hoa-1.jpg" alt="" style="right:-80px;top:30px;width:200px;transform:rotate(30deg)">
   <h2 class="rv">Hộp quà mừng</h2>
-  <div class="bank rv">
-    <p class="small" style="letter-spacing:.2em">Vietcombank (VCB)</p>
-    <p class="n" id="acc">0731000880190</p>
-    <button class="btn" id="cpb" style="padding:11px 28px;font-size:15px">Sao chép số tài khoản</button>
-    <img src="https://img.vietqr.io/image/VCB-0731000880190-compact2.png" alt="Mã QR chuyển khoản" onerror="this.remove()">
+  <div class="gbox rv" id="gbox">
+    <button class="env" id="env" aria-label="Nhấn để mở hộp quà"><img src="assets/hop-qua.jpg" alt=""></button>
+    <p class="tap" id="tap">Nhấn để mở</p>
+    <div class="bank" id="bank">
+      <p class="small" style="letter-spacing:.2em">Vietcombank (VCB)</p>
+      <p class="n" id="acc">0731000880190</p>
+      <button class="btn" id="cpb" style="padding:11px 28px;font-size:15px">Sao chép số tài khoản</button>
+      <img src="https://img.vietqr.io/image/VCB-0731000880190-compact2.png" alt="Mã QR chuyển khoản" onerror="this.remove()">
+    </div>
+    <div class="hearts" id="hearts"></div>
   </div>
+  <p class="rv" style="margin-top:44px;font-size:21px">Sự hiện diện của quý khách là niềm vinh hạnh của gia đình chúng tôi!</p>
 </section>
 
 <footer>
@@ -249,7 +270,14 @@ $('#ics').onclick=()=>{
 /* sổ lưu bút */
 const wishes=['Chúc hai bạn trăm năm hạnh phúc ❤️','Chúc mừng hạnh phúc hai bạn! Mãi bên nhau nhé 💕','Chúc đôi uyên ương luôn yêu thương và đồng hành cùng nhau suốt cuộc đời!','Chúc mừng ngày trọng đại của hai bạn, bách niên giai lão! 🥂'];
 const fmt=t=>{const d=new Date(t),p=n=>String(n).padStart(2,'0');return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())} ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`};
-function render(){const l=store('gb');$('#gl').innerHTML=l.length?l.map(w=>`<div class="w1"><div><b>${esc(w.n)}</b><span>${fmt(w.t)}</span></div><p>${esc(w.m)}</p></div>`).join(''):'<p class="empty">Hãy là người đầu tiên gửi lời chúc ♡</p>'}
+/* LỜI CHÚC MẪU (tượng trưng): xóa mảng SAMPLE bên dưới nếu không muốn hiển thị */
+const SAMPLE=[
+ {n:'Bạn Thu Hà',m:'Chúc hai bạn trăm năm hạnh phúc, mãi yêu thương và đồng hành cùng nhau nhé ❤️',t:'2027-04-18T20:15:30'},
+ {n:'Anh Quân',m:'Chúc mừng hai em! Chúc đôi uyên ương luôn vui vẻ, bình an và hạnh phúc!',t:'2027-04-17T09:41:12'},
+ {n:'Cô Lan',m:'Cô chúc hai cháu bách niên giai lão, sớm có tin vui nhé 🥂',t:'2027-04-15T18:02:44'},
+ {n:'Bạn Minh Anh',m:'Chúc mừng ngày trọng đại của hai bạn. Hạnh phúc ngập tràn nha 💕',t:'2027-04-12T11:27:05'}
+].map(w=>({...w,t:new Date(w.t).getTime()}));
+function render(){const l=store('gb').concat(SAMPLE);$('#gl').innerHTML=l.length?l.map(w=>`<div class="w1"><div><b>${esc(w.n)}</b><span>${fmt(w.t)}</span></div><p>${esc(w.m)}</p></div>`).join(''):'<p class="empty">Hãy là người đầu tiên gửi lời chúc ♡</p>'}
 $('#wand').onclick=()=>{$('#gm').value=wishes[Math.floor(Math.random()*wishes.length)]};
 $('#gbf').onsubmit=e=>{e.preventDefault();const w={n:$('#gn').value.trim(),m:$('#gm').value.trim(),t:Date.now()};
  if(!w.n||!w.m)return;const l=store('gb');l.unshift(w);store('gb',l);send('guestbook',w);$('#gm').value='';render()};
@@ -259,6 +287,12 @@ render();
 const dlg=$('#dlg');
 $('#rsvp').onclick=()=>dlg.showModal();$('#rx').onclick=()=>dlg.close();
 $('#rf').onsubmit=()=>{send('rsvp',{name:$('#rn').value,status:$('#rs').value,guests:$('#rc').value,note:$('#rm').value,t:Date.now()});alert('Cảm ơn bạn đã xác nhận! ❤️')};
+
+/* mở hộp quà */
+$('#env').onclick=()=>{const b=$('#gbox');if(b.classList.contains('open'))return;b.classList.add('open');
+ const h=$('#hearts');for(let i=0;i<16;i++){const e=document.createElement('i');e.textContent=['❤️','💚','✨','🤍'][i%4];
+  e.style.setProperty('--x',(Math.random()*340-170)+'px');e.style.setProperty('--y',-(Math.random()*240+40)+'px');e.style.animationDelay=(Math.random()*.5)+'s';h.appendChild(e)}
+ setTimeout(()=>{h.innerHTML=''},3000)};
 
 /* sao chép STK */
 $('#cpb').onclick=()=>{const b=$('#cpb'),t='Sao chép số tài khoản',ok=()=>{b.textContent='Đã sao chép ✓';setTimeout(()=>b.textContent=t,2000)};
